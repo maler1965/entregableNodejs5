@@ -18,9 +18,10 @@ router
     repairsController.createRepairs
   );
 
-router.use(authMiddleware.protect); //para saber que se loggio
+router.use(authMiddleware.protect); //para saber que se loggio/  restrictTo('admin'), // Solo permitir a los usuarios con rol 'admin'
 
-router.use(repairsMiddleware.validEmployeeUser);
+//router.use(repairsMiddleware.validEmployeeUser);
+router.use(repairsMiddleware.restrictTo('employee'));
 
 router.route('/').get(repairsController.findAllRepairs);
 

@@ -1,27 +1,18 @@
 const catchAsync = require('../utils/catchAsync');
 const { Repairs, repairsStatus } = require('../models/repairs.model');
-const User = require('../models/user.model');
 const AppError = require('../utils/appError');
 
-exports.validEmployeeUser = catchAsync(async (req, res, next) => {
-  const user = req.sessionUser;
-  const id = user.id;
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.sessionUser.role)) {
+      return next(
+        new AppError('You do not have permission to perfom this action.!', 403)
+      );
+    }
 
-  const userEmployee = await User.findOne({
-    where: {
-      status: 'available',
-      role: 'employee',
-      id,
-    },
-  });
-
-  if (!userEmployee) {
-    return next(new AppError(`User with id: ${id} not is employee`, 404));
-  }
-
-  req.userEmployee = userEmployee;
-  next();
-});
+    next();
+  };
+};
 
 exports.validRepairsId = catchAsync(async (req, res, next) => {
   const { id } = req.params;
